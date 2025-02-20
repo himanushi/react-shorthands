@@ -67,6 +67,8 @@ export const shorthands = shorthandSettings({
   extend: tailwindcssSettings,
   shorthands: {
     jCenter: { justifyContent: "center" },
+    w: { width: "$1" },
+    px: { paddingLeft: "$1", paddingRight: "$1" },
   },
   // allowed dom props
   allowedProps: [
@@ -204,24 +206,24 @@ import { shorthands } from "./shorthands";
 const textShorthands = shorthandSettings({
   extend: shorthands.settings,
   shorthands: {
-    // responsive shorthands
-    sizeS: { fontSize: { xs: "0.75rem", md: "1rem" } },
-    sizeM: { fontSize: { xs: "1rem", md: "1.25rem" } },
-    sizeL: { fontSize: { xs: "1.25rem", md: "1.5rem" } },
-
-    // Component shorthands
-    h1: { as: "h1" },
-    h2: { as: "h2" },
-    h3: { as: "h3" },
-    h4: { as: "h4" },
-    h5: { as: "h5" },
-    h6: { as: "h6" },
-
     bold: { fontWeight: "bold" },
   },
-  shorthandGroups: {
-    heading: { list: ["h1", "h2", "h3", "h4", "h5", "h6"] },
-    size: { list: ["sizeS", "sizeM", "sizeL"], default: "sizeM" },
+  variants: {
+    size: {
+      values: {
+        s: { fontSize: "0.875rem" },
+        m: { fontSize: "1rem" },
+        l: { fontSize: "1.125rem" },
+      },
+      default: "m",
+    },
+    heading: {
+      values: {
+        h1: { as: "h1", fontSize: { xs: "2rem", md: "2.5rem" } },
+        h2: { as: "h2", fontSize: { xs: "1.5rem", md: "2rem" } },
+        h3: { as: "h3", fontSize: { xs: "1.25rem", md: "1.75rem" } },
+      },
+    },
   },
   defaultProps: {
     as: "p",
@@ -235,7 +237,7 @@ export const Text = ({ as: Component, ...props }: TextProps) => (
 );
 
 export const App = () => (
-  <Text h1 bold sizeL>
+  <Text size="l" heading="h1" bold>
     Heading 1
   </Text>
 );
@@ -246,9 +248,12 @@ export const App = () => (
 ```tsx
 import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
+import { ComponentProps } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-const textareaShorthands = shorthandSettings({
+const textareaShorthands = shorthandSettings<
+  ComponentProps<typeof TextareaAutosize>
+>({
   extend: shorthands.settings,
   defaultProps: {
     as: TextareaAutosize,
