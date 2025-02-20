@@ -305,3 +305,66 @@ export const App = () => {
   );
 };
 ```
+
+# Ui and Motion Example
+
+```tsx
+import { shorthandSettings } from "react-shorthands";
+import { shorthands } from "./shorthands";
+import { motion } from "motion/react";
+
+const motionShorthands = shorthandSettings({
+  extend: shorthands.settings,
+  allowedProps: [
+    "$motion"
+    "initial",
+    "animate",
+    "exit",
+    "variants",
+    "transition",
+    "transformTemplate",
+    "transformValues",
+    "style",
+    "layout",
+    "layoutId",
+    /^drag/,
+    /^while/,
+  ],
+});
+
+type UiProps = typeof motionShorthands.inferProps;
+
+export const Ui = ({ as, $motion, ...props }: UiProps) => {
+  const Component = $motion && typeof as === "string" ? motion[as] : as;
+  return <Component {...motionShorthands(props)} />;
+};
+
+export const App = () => (
+  <Ui
+    // Enable Motion
+    $motion
+    // Motion props
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    // Style shorthands
+    bg="gray-50"
+    p="12px"
+    borderRadius="4px"
+    color="gray-700"
+    // Pseudo selectors
+    __hover={{
+      bg: "gray-100",
+    }}
+    __focus={{
+      bg: "white",
+      borderColor: "blue-500",
+    }}
+    // Responsive styles
+    width={{ xs: "100%", md: "400px" }}
+    fontSize={{ xs: "14px", md: "16px" }}
+  >
+    Hello, World!
+  </Ui>
+);
+```
