@@ -3,7 +3,62 @@
 A simple utility to create shorthand props for React components.
 CSS-in-JS is great, but it can be verbose. This library allows you to create shorthand props for your components.
 
-# Root Shorthands
+# Usage
+
+```ts
+import { shorthandSettings, tailwindcssSettings } from "react-shorthands";
+
+export const shorthands = shorthandSettings({
+  extend: tailwindcssSettings,
+});
+```
+
+```tsx
+import { shorthands } from "./shorthands";
+
+type UiProps = typeof shorthands.inferProps;
+
+const Ui = ({ as: Component, ...props }: UiProps) => (
+  <Component {...shorthands(props)}>React Shorthands!!</Component>
+);
+```
+
+```tsx
+const App = () => {
+  return (
+    <Ui
+      // Component type
+      as="button"
+      // TailwindCSS like shorthands
+      justifyCenter
+      bg="gray-50"
+      color="gray-500"
+      p="10px"
+      m="10px"
+      // pseudo selectors
+      __hover={{
+        bg: "gray-100",
+      }}
+      __focus={{
+        // responsive shorthands
+        bg: { xs: "gray-100", md: "gray-200" },
+      }}
+      // responsive shorthands
+      width={{ xs: "100%", md: "50%" }}
+      // nested shorthands
+      __disabled={{
+        bg: "gray-50",
+        color: "gray-200",
+        __hover: {
+          bg: { xs: "gray-100", md: "gray-200" },
+        },
+      }}
+    />
+  );
+};
+```
+
+# Custom Shorthands
 
 ```ts
 import { shorthandSettings, tailwindcssSettings } from "react-shorthands";
@@ -184,4 +239,64 @@ export const App = () => (
     Heading 1
   </Text>
 );
+```
+
+# Third-party Component Integration
+
+```tsx
+import { shorthandSettings } from "react-shorthands";
+import { shorthands } from "./shorthands";
+import TextareaAutosize from "react-textarea-autosize";
+
+const textareaShorthands = shorthandSettings({
+  extend: shorthands.settings,
+  defaultProps: {
+    as: TextareaAutosize,
+  },
+  allowedProps: [
+    "minRows",
+    "maxRows",
+    "onHeightChange",
+    "useCacheForDOMMeasurements",
+    "autoFocus",
+  ],
+});
+
+type TextareaProps = typeof textareaShorthands.inferProps;
+
+export const Textarea = ({ as: Component, ...props }: TextareaProps) => (
+  <Component {...textareaShorthands(props)} />
+);
+
+export const App = () => {
+  const [value, setValue] = React.useState("");
+  return (
+    <Textarea
+      // Style shorthands
+      bg="gray-50"
+      p="12px"
+      borderRadius="4px"
+      color="gray-700"
+      // Pseudo selectors
+      __hover={{
+        bg: "gray-100",
+      }}
+      __focus={{
+        bg: "white",
+        borderColor: "blue-500",
+      }}
+      // Responsive styles
+      width={{ xs: "100%", md: "400px" }}
+      fontSize={{ xs: "14px", md: "16px" }}
+      // TextareaAutosize props
+      minRows={3}
+      maxRows={10}
+      // Event handlers
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      // Standard HTML attributes
+      placeholder="Enter text here..."
+    />
+  );
+};
 ```
