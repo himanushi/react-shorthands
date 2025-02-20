@@ -8,6 +8,7 @@ import { shorthandSettings } from "react-shorthands";
 export const shorthands = shorthandSettings({
   shorthands: {
     jCenter: { justifyContent: "center" },
+    bg: { backgroundColor: "$1" },
   },
   domProps: ["children", "id", "className", "style", "ref", /^on/, /^data-/],
   // @media (width >= xx) { ... }
@@ -27,10 +28,22 @@ export const shorthands = shorthandSettings({
     "gray-50": "oklch(0.551 0.027 264.364)",
     "gray-95": "oklch(0.13 0.028 261.692)",
   },
+  pseudoSelectors: {
+    __hover: ":hover",
+    __focus: ":focus",
+    __active: ":active",
+    __disabled: ":disabled",
+    __checked: ":checked",
+    __before: "::before",
+    __after: "::after",
+  },
+  defaultProps: {
+    as: "div",
+  },
 });
 ```
 
-# Example Components
+# Box Component
 
 ```tsx
 import { shorthandSettings } from "react-shorthands";
@@ -51,9 +64,44 @@ const boxShorthands = shorthandSettings({
 
 type BoxProps = typeof boxShorthands.inferProps;
 
-export const Box = (props: BoxProps) => (
-  <div {...shorthands(props)}>Hello, World!</div>
+export const Box = ({ as: Component, ...props }: BoxProps) => (
+  <Component {...boxShorthands(props)}>Hello, World!</Component>
 );
 
 export const App = () => <Box jEnd w="100px" />;
+```
+
+# Button Component
+
+```tsx
+import { shorthandSettings } from "react-shorthands";
+import { shorthands } from "./shorthands";
+
+const buttonShorthands = shorthandSettings({
+  margeSettings: shorthands.settings,
+  shorthands: {
+    primary: {
+      color: "white",
+      bg: "blue-500",
+      __hover: { bg: "blue-600" },
+      __active: { bg: "blue-700" },
+      __disabled: {
+        __hover: { bg: "blue-500" },
+        __active: { bg: "blue-500" },
+      },
+    },
+  },
+  defaultProps: {
+    display: "flex",
+    jCenter: true,
+  },
+});
+
+type ButtonProps = typeof buttonShorthands.inferProps;
+
+export const Button = ({ as: Component, ...props }: ButtonProps) => (
+  <Component {...buttonShorthands(props)}>Hello, World!</Component>
+);
+
+export const App = () => <Button primary>Click Me!</Button>;
 ```
