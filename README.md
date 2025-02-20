@@ -1,5 +1,7 @@
 # react-shorthands
 
+# Root Shorthands
+
 ```ts
 import { shorthandSettings } from "react-shorthands";
 
@@ -23,19 +25,35 @@ export const shorthands = shorthandSettings({
     "slate-95": "oklch(0.129 0.042 264.695)",
     "gray-5": "oklch(0.985 0.002 247.839)",
     "gray-50": "oklch(0.551 0.027 264.364)",
-    "gray-95": "oklch(0.13 0.028 261.692)"
-  }
+    "gray-95": "oklch(0.13 0.028 261.692)",
+  },
+});
+```
+
+# Example Components
+
+```tsx
+import { shorthandSettings } from "react-shorthands";
+import { shorthands } from "./shorthands";
+
+const boxShorthands = shorthandSettings({
+  margeSettings: shorthands.settings,
+  shorthands: {
+    jEnd: { justifyContent: "end" },
+    w: { width: "$1" },
+  },
+  defaultProps: {
+    display: "flex",
+    alignItems: "center",
+    jCenter: true,
+  },
 });
 
-type BoxProps = typeof shorthands.inferProps;
+type BoxProps = typeof boxShorthands.inferProps;
 
 export const Box = (props: BoxProps) => (
-  <div {...shorthands(props)} >
-    Hello, World!
-  </div>
+  <div {...shorthands(props)}>Hello, World!</div>
 );
 
-export const App = () => (
-  <Box jCenter width="100px" />
-);
+export const App = () => <Box jEnd w="100px" />;
 ```
