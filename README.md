@@ -67,6 +67,7 @@ export const shorthands = shorthandSettings({
   extend: tailwindcssSettings,
   shorthands: {
     jCenter: { justifyContent: "center" },
+    // $1 is the argument passed to the shorthand
     w: { width: "$1" },
     px: { paddingLeft: "$1", paddingRight: "$1" },
   },
@@ -316,7 +317,7 @@ import { motion } from "motion/react";
 const motionShorthands = shorthandSettings({
   extend: shorthands.settings,
   allowedProps: [
-    "$motion"
+    "$motion",
     "initial",
     "animate",
     "exit",
