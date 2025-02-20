@@ -6,13 +6,15 @@ CSS-in-JS is great, but it can be verbose. This library allows you to create sho
 # Root Shorthands
 
 ```ts
-import { shorthandSettings } from "react-shorthands";
+import { shorthandSettings, recommendSettings } from "react-shorthands";
 
 export const shorthands = shorthandSettings({
+  margeSettings: recommendSettings,
   shorthands: {
     jCenter: { justifyContent: "center" },
     bg: { backgroundColor: "$1" },
   },
+  // allowed dom props
   domProps: ["children", "id", "className", "style", "ref", /^on/, /^data-/],
   // @media (width >= xx) { ... }
   breakpoints: {
@@ -47,6 +49,48 @@ export const shorthands = shorthandSettings({
 
 // Check the settings
 console.log(shorthands.settings);
+```
+
+# Box Component
+
+```tsx
+import { shorthandSettings } from "react-shorthands";
+import { shorthands } from "./shorthands";
+
+const boxShorthands = shorthandSettings({
+  margeSettings: shorthands.settings,
+  defaultProps: {
+    display: "flex",
+  },
+});
+
+// Check the settings
+console.log(boxShorthands.settings);
+
+type BoxProps = typeof boxShorthands.inferProps;
+
+export const Box = ({ as: Component, ...props }: BoxProps) => (
+  <Component {...boxShorthands(props)}>Hello, World!</Component>
+);
+
+--
+import { css } from "react-shorthands";
+
+export const App = () => (
+  <Box
+    // pseudo selectors
+    __hover={{
+      bg: "gray-50", // "#f00" or "red" etc.
+    }}
+    width="100px"
+    style={{ padding: "10px" }}
+    className={css(`
+      color: red;
+    `)}
+  >
+    Hello, World!
+  </Box>
+);
 ```
 
 # Button Component
