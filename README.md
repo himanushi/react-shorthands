@@ -6,16 +6,23 @@ CSS-in-JS is great, but it can be verbose. This library allows you to create sho
 # Root Shorthands
 
 ```ts
-import { shorthandSettings, recommendSettings } from "react-shorthands";
+import { shorthandSettings, tailwindcssSettings } from "react-shorthands";
 
 export const shorthands = shorthandSettings({
-  margeSettings: recommendSettings,
+  extend: tailwindcssSettings,
   shorthands: {
     jCenter: { justifyContent: "center" },
-    bg: { backgroundColor: "$1" },
   },
   // allowed dom props
-  domProps: ["children", "id", "className", "style", "ref", /^on/, /^data-/],
+  allowedProps: [
+    "children",
+    "id",
+    "className",
+    "style",
+    "ref",
+    /^on/,
+    /^data-/,
+  ],
   // @media (width >= xx) { ... }
   breakpoints: {
     xs: 0,
@@ -58,7 +65,7 @@ import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
 const boxShorthands = shorthandSettings({
-  margeSettings: shorthands.settings,
+  extend: shorthands.settings,
   defaultProps: {
     display: "flex",
   },
@@ -73,7 +80,7 @@ export const Box = ({ as: Component, ...props }: BoxProps) => (
   <Component {...boxShorthands(props)}>Hello, World!</Component>
 );
 
---
+// @emotion/css
 import { css } from "react-shorthands";
 
 export const App = () => (
@@ -100,7 +107,7 @@ import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
 const buttonShorthands = shorthandSettings({
-  margeSettings: shorthands.settings,
+  extend: shorthands.settings,
   shorthands: {
     primary: {
       color: "white",
@@ -140,7 +147,7 @@ import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
 const textShorthands = shorthandSettings({
-  margeSettings: shorthands.settings,
+  extend: shorthands.settings,
   shorthands: {
     // responsive shorthands
     sizeS: { fontSize: { xs: "0.75rem", md: "1rem" } },
@@ -157,7 +164,7 @@ const textShorthands = shorthandSettings({
 
     bold: { fontWeight: "bold" },
   },
-  groupShorthands: {
+  shorthandGroups: {
     heading: { list: ["h1", "h2", "h3", "h4", "h5", "h6"] },
     size: { list: ["sizeS", "sizeM", "sizeL"], default: "sizeM" },
   },
