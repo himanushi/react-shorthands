@@ -9,7 +9,7 @@ export const shorthands = shorthandSettings({
   shorthands: {
     jCenter: { justifyContent: "center" },
   },
-  domProps: ["children", "id", "className", "style", /^on/, /^data-/],
+  domProps: ["children", "id", "className", "style", "ref", /^on/, /^data-/],
   // @media (width >= xx) { ... }
   breakpoints: {
     xs: 0,
@@ -40,11 +40,11 @@ const boxShorthands = shorthandSettings({
   margeSettings: shorthands.settings,
   shorthands: {
     jEnd: { justifyContent: "end" },
+    // $1 is the value of the prop
     w: { width: "$1" },
   },
   defaultProps: {
     display: "flex",
-    alignItems: "center",
     jCenter: true,
   },
 });
