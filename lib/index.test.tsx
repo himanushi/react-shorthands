@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { shorthandSettings, tailwindcssSettings, css, Global } from ".";
 
 describe("shorthandSettings", () => {
@@ -71,11 +71,16 @@ describe("shorthandSettings", () => {
           w: { width: "$1" },
         },
       });
+
       const result = shorthands({
         w: { xs: "100%", md: "50%" },
       });
-      expect(result.style.width).toContain("@media (min-width: 0px)");
-      expect(result.style.width).toContain("@media (min-width: 768px)");
+      expect(result.style.width).toContain(
+        "@media (min-width: 0px) { width: 100%; }",
+      );
+      expect(result.style.width).toContain(
+        "@media (min-width: 768px) { width: 50%; }",
+      );
     });
   });
 
@@ -91,6 +96,7 @@ describe("shorthandSettings", () => {
         __hover: { color: "red" },
         __focus: { color: "blue" },
       });
+
       expect(result.style[":hover"]).toEqual({ color: "red" });
       expect(result.style[":focus"]).toEqual({ color: "blue" });
     });
@@ -162,26 +168,41 @@ describe("css機能", () => {
       color: ${color};
       padding: 10px;
     `;
-    expect(result).toContain("color: red");
-    expect(result).toContain("padding: 10px");
+    expect(typeof result).toBe("string");
+    expect(result).toMatch(/^css-[a-zA-Z0-9]+$/);
+
+    const styleElement = document.head.querySelector("style");
+    expect(styleElement?.textContent).toContain("color:red");
+    expect(styleElement?.textContent).toContain("padding:10px");
   });
 });
 
 describe("Globalコンポーネント", () => {
   afterEach(() => {
-    // テスト後にスタイル要素をクリーンアップ
     document.head.querySelectorAll("style").forEach((el) => el.remove());
   });
 
   it("グローバルスタイルをDOMに注入する", () => {
-    const styles = `
-      body { margin: 0; }
-      .test { color: red; }
+    const styles = css`
+      body {
+        margin: 0;
+      }
+      .test {
+        color: red;
+      }
     `;
+
     render(<Global styles={styles} />);
-    const styleElement = document.head.querySelector("style");
-    expect(styleElement).toBeDefined();
-    expect(styleElement?.textContent).toBe(styles);
+
+    const styleElements = document.head.querySelectorAll("style");
+    expect(styleElements.length).toBeGreaterThan(0);
+
+    const allStyles = Array.from(styleElements)
+      .map((el) => el.textContent)
+      .join("");
+
+    expect(allStyles).toContain("{margin:0;}");
+    expect(allStyles).toContain("{color:red;}");
   });
 });
 

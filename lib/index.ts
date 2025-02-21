@@ -256,22 +256,13 @@ export const tailwindcssSettings: ShorthandSettings = {
   ],
 };
 
-// CSS-in-JSヘルパー
-export function css(template: TemplateStringsArray, ...values: any[]): string {
-  return template.reduce((acc, part, i) => {
-    return acc + part + (values[i] || "");
-  }, "");
-}
+export { css } from "@emotion/css";
 
-// Globalスタイル用コンポーネント
+import { injectGlobal } from "@emotion/css";
+
 export function Global({ styles }: { styles: string }): null {
   if (typeof document !== "undefined") {
-    const style = document.createElement("style");
-    style.textContent = styles;
-    document.head.appendChild(style);
-
-    // クリーンアップ関数を返す代わりに、要素を直接追加
-    return null;
+    injectGlobal(styles);
   }
   return null;
 }
