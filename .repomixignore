@@ -1,0 +1,24 @@
+# Add patterns to ignore here, one per line
+# Example:
+# *.log
+# tmp/
+
+tmp/
+log/
+node_modules/
+dist/
+.vscode/
+
+*repomix*
+*.log
+*.svg
+
+vscode.code-workspace
+defaultValues.ts
+package-lock.json
+.gitignore
+values.ts
+Ui.stories.tsx
+Icon.stories.tsx
+constants.ts
+styleProcessor.test.ts

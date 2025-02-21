@@ -9,7 +9,7 @@
       "commands": [
         {
           "match": "\\.js$|\\.cjs$|\\.jsx$|\\.tsx$|\\.ts$|\\.css$|\\.scss$",
-          "cmd": "npx eslint --fix ${file}",
+          "cmd": "npx eslint --write ${file}",
         },
         {
           "match": "\\.md$|\\.scss$|\\.code-workspace$|\\.json$",
