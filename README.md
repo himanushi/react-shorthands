@@ -369,3 +369,44 @@ export const App = () => (
   </Ui>
 );
 ```
+
+# Theme Switching Example
+
+```tsx
+import { shorthandSettings, Global, css } from "react-shorthands";
+import { shorthands } from "./shorthands";
+
+const globalStyles = css`
+  :root {
+    --component-text-color: var(--color-gray-90);
+  }
+  .dark {
+    --component-text-color: var(--color-gray-10);
+  }
+`;
+
+const textShorthands = shorthandSettings({
+  extend: shorthands.settings,
+  defaultProps: {
+    as: "p",
+    color: "var(--component-text-color)",
+  },
+});
+
+type TextProps = typeof textShorthands.inferProps;
+
+export const Text = ({ as: Component, ...props }: TextProps) => (
+  <>
+    <Global styles={globalStyles} />
+    <Component {...textShorthands(props)}>{props.children}</Component>
+  </>
+);
+
+export const App = () => (
+  <div className="dark">
+    <Text size="l" heading="h1" bold>
+      Heading 1
+    </Text>
+  </div>
+);
+```
