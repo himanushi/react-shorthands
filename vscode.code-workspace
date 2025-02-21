@@ -9,11 +9,11 @@
       "commands": [
         {
           "match": "\\.js$|\\.cjs$|\\.jsx$|\\.tsx$|\\.ts$|\\.css$|\\.scss$",
-          "cmd": "npx eslint --write ${file}",
+          "cmd": "echo 'Running ESLint on ${file}' && npx eslint --fix ${file}",
         },
         {
-          "match": "\\.md$|\\.scss$|\\.code-workspace$|\\.json$",
-          "cmd": "npx prettier --write ${file}",
+          "match": "\\.md$|\\.scss$|\\.code-workspace$|\\.json$|\\.js$|\\.cjs$|\\.jsx$|\\.tsx$|\\.ts$|\\.css$|\\.scss$",
+          "cmd": "echo 'Running Prettier on ${file}' && npx prettier --write ${file}",
         },
       ],
     },
