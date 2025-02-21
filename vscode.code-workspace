@@ -8,11 +8,11 @@
     "emeraldwalk.runonsave": {
       "commands": [
         {
-          "match": "\\.js$|\\.cjs$|\\.jsx$|\\.tsx$|\\.ts$|\\.json$|\\.css$|\\.scss$",
+          "match": "\\.js$|\\.cjs$|\\.jsx$|\\.tsx$|\\.ts$|\\.css$|\\.scss$",
           "cmd": "npx eslint --fix ${file}",
         },
         {
-          "match": "\\.md$|\\.scss$|\\.code-workspace$",
+          "match": "\\.md$|\\.scss$|\\.code-workspace$|\\.json$",
           "cmd": "npx prettier --write ${file}",
         },
       ],
