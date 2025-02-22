@@ -8,9 +8,7 @@ CSS-in-JS is great, but it can be verbose. This library allows you to create sho
 ```ts
 import { shorthandSettings, tailwindcssSettings } from "react-shorthands";
 
-export const shorthands = shorthandSettings({
-  extend: tailwindcssSettings,
-});
+export const shorthands = shorthandSettings([tailwindcssSettings]);
 ```
 
 ```tsx
@@ -58,59 +56,91 @@ const App = () => {
 };
 ```
 
+# Settings Order
+
+Settings are merged in array order, with later elements taking precedence.
+
+```ts
+const shorthands = shorthandSettings([
+  {
+    colors: {
+      primary: "blue",
+      secondary: "green",
+    },
+  },
+  {
+    colors: {
+      primary: "red", // overrides "blue"
+      accent: "yellow", // adds new color
+    },
+  },
+]);
+
+// Result:
+// {
+//   colors: {
+//     primary: "red",      // later setting takes precedence
+//     secondary: "green",  // kept as not overridden
+//     accent: "yellow"     // new value added
+//   }
+// }
+```
+
 # Custom Shorthands
 
 ```ts
 import { shorthandSettings, tailwindcssSettings } from "react-shorthands";
 
-export const shorthands = shorthandSettings({
-  extend: tailwindcssSettings,
-  shorthands: {
-    jCenter: { justifyContent: "center" },
-    // $1 is the argument passed to the shorthand
-    w: { width: "$1" },
-    px: { paddingLeft: "$1", paddingRight: "$1" },
+export const shorthands = shorthandSettings([
+  tailwindcssSettings,
+  {
+    shorthands: {
+      jCenter: { justifyContent: "center" },
+      // $1 is the argument passed to the shorthand
+      w: { width: "$1" },
+      px: { paddingLeft: "$1", paddingRight: "$1" },
+    },
+    // allowed dom props
+    allowedProps: [
+      "children",
+      "id",
+      "className",
+      "style",
+      "ref",
+      /^on/,
+      /^data-/,
+    ],
+    // @media (width >= xx) { ... }
+    breakpoints: {
+      xs: 0,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      "2xl": 1536,
+    },
+    colors: {
+      "slate-5": "oklch(0.984 0.003 247.858)",
+      "slate-50": "oklch(0.554 0.046 257.417)",
+      "slate-95": "oklch(0.129 0.042 264.695)",
+      "gray-5": "oklch(0.985 0.002 247.839)",
+      "gray-50": "oklch(0.551 0.027 264.364)",
+      "gray-95": "oklch(0.13 0.028 261.692)",
+    },
+    pseudoSelectors: {
+      __hover: ":hover",
+      __focus: ":focus",
+      __active: ":active",
+      __disabled: ":disabled",
+      __checked: ":checked",
+      __before: "::before",
+      __after: "::after",
+    },
+    defaultProps: {
+      as: "div",
+    },
   },
-  // allowed dom props
-  allowedProps: [
-    "children",
-    "id",
-    "className",
-    "style",
-    "ref",
-    /^on/,
-    /^data-/,
-  ],
-  // @media (width >= xx) { ... }
-  breakpoints: {
-    xs: 0,
-    sm: 640,
-    md: 768,
-    lg: 1024,
-    xl: 1280,
-    "2xl": 1536,
-  },
-  colors: {
-    "slate-5": "oklch(0.984 0.003 247.858)",
-    "slate-50": "oklch(0.554 0.046 257.417)",
-    "slate-95": "oklch(0.129 0.042 264.695)",
-    "gray-5": "oklch(0.985 0.002 247.839)",
-    "gray-50": "oklch(0.551 0.027 264.364)",
-    "gray-95": "oklch(0.13 0.028 261.692)",
-  },
-  pseudoSelectors: {
-    __hover: ":hover",
-    __focus: ":focus",
-    __active: ":active",
-    __disabled: ":disabled",
-    __checked: ":checked",
-    __before: "::before",
-    __after: "::after",
-  },
-  defaultProps: {
-    as: "div",
-  },
-});
+]);
 
 // Check the settings
 console.log(shorthands.settings);
@@ -122,12 +152,14 @@ console.log(shorthands.settings);
 import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
-const boxShorthands = shorthandSettings({
-  extend: shorthands.settings,
-  defaultProps: {
-    display: "flex",
+const boxShorthands = shorthandSettings([
+  shorthands.settings,
+  {
+    defaultProps: {
+      display: "flex",
+    },
   },
-});
+]);
 
 // Check the settings
 console.log(boxShorthands.settings);
@@ -164,27 +196,29 @@ export const App = () => (
 import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
-const buttonShorthands = shorthandSettings({
-  extend: shorthands.settings,
-  shorthands: {
-    primary: {
-      color: "white",
-      bg: "blue-500",
-      // nested shorthands
-      __hover: { bg: "blue-600" },
-      __active: { bg: "blue-700" },
-      __disabled: {
-        // responsive shorthands
-        __hover: { bg: "blue-500" },
-        __active: { bg: "blue-500" },
+const buttonShorthands = shorthandSettings([
+  shorthands.settings,
+  {
+    shorthands: {
+      primary: {
+        color: "white",
+        bg: "blue-500",
+        // nested shorthands
+        __hover: { bg: "blue-600" },
+        __active: { bg: "blue-700" },
+        __disabled: {
+          // responsive shorthands
+          __hover: { bg: "blue-500" },
+          __active: { bg: "blue-500" },
+        },
       },
     },
+    defaultProps: {
+      display: "flex",
+      jCenter: true,
+    },
   },
-  defaultProps: {
-    display: "flex",
-    jCenter: true,
-  },
-});
+]);
 
 // Check the settings
 console.log(buttonShorthands.settings);
@@ -204,32 +238,34 @@ export const App = () => <Button primary>Click Me!</Button>;
 import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 
-const textShorthands = shorthandSettings({
-  extend: shorthands.settings,
-  shorthands: {
-    bold: { fontWeight: "bold" },
-  },
-  variants: {
-    size: {
-      values: {
-        s: { fontSize: "0.875rem" },
-        m: { fontSize: "1rem" },
-        l: { fontSize: "1.125rem" },
-      },
-      default: "m",
+const textShorthands = shorthandSettings([
+  shorthands.settings,
+  {
+    shorthands: {
+      bold: { fontWeight: "bold" },
     },
-    heading: {
-      values: {
-        h1: { as: "h1", fontSize: { xs: "2rem", md: "2.5rem" } },
-        h2: { as: "h2", fontSize: { xs: "1.5rem", md: "2rem" } },
-        h3: { as: "h3", fontSize: { xs: "1.25rem", md: "1.75rem" } },
+    variants: {
+      size: {
+        values: {
+          s: { fontSize: "0.875rem" },
+          m: { fontSize: "1rem" },
+          l: { fontSize: "1.125rem" },
+        },
+        default: "m",
+      },
+      heading: {
+        values: {
+          h1: { as: "h1", fontSize: { xs: "2rem", md: "2.5rem" } },
+          h2: { as: "h2", fontSize: { xs: "1.5rem", md: "2rem" } },
+          h3: { as: "h3", fontSize: { xs: "1.25rem", md: "1.75rem" } },
+        },
       },
     },
+    defaultProps: {
+      as: "p",
+    },
   },
-  defaultProps: {
-    as: "p",
-  },
-});
+]);
 
 type TextProps = typeof textShorthands.inferProps;
 
@@ -252,21 +288,22 @@ import { shorthands } from "./shorthands";
 import { ComponentProps } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-const textareaShorthands = shorthandSettings<
-  ComponentProps<typeof TextareaAutosize>
->({
-  extend: shorthands.settings,
-  defaultProps: {
-    as: TextareaAutosize,
+type TextareaAutosizeProps = ComponentProps<typeof TextareaAutosize>;
+const textareaShorthands = shorthandSettings<TextareaAutosizeProps>([
+  shorthands.settings,
+  {
+    defaultProps: {
+      as: TextareaAutosize,
+    },
+    allowedProps: [
+      "minRows",
+      "maxRows",
+      "onHeightChange",
+      "useCacheForDOMMeasurements",
+      "autoFocus",
+    ],
   },
-  allowedProps: [
-    "minRows",
-    "maxRows",
-    "onHeightChange",
-    "useCacheForDOMMeasurements",
-    "autoFocus",
-  ],
-});
+]);
 
 type TextareaProps = typeof textareaShorthands.inferProps;
 
@@ -314,24 +351,26 @@ import { shorthandSettings } from "react-shorthands";
 import { shorthands } from "./shorthands";
 import { motion } from "motion/react";
 
-const motionShorthands = shorthandSettings({
-  extend: shorthands.settings,
-  allowedProps: [
-    "$motion",
-    "initial",
-    "animate",
-    "exit",
-    "variants",
-    "transition",
-    "transformTemplate",
-    "transformValues",
-    "style",
-    "layout",
-    "layoutId",
-    /^drag/,
-    /^while/,
-  ],
-});
+const motionShorthands = shorthandSettings([
+  shorthands.settings,
+  {
+    allowedProps: [
+      "$motion",
+      "initial",
+      "animate",
+      "exit",
+      "variants",
+      "transition",
+      "transformTemplate",
+      "transformValues",
+      "style",
+      "layout",
+      "layoutId",
+      /^drag/,
+      /^while/,
+    ],
+  },
+]);
 
 type UiProps = typeof motionShorthands.inferProps;
 
@@ -385,13 +424,15 @@ const globalStyles = css`
   }
 `;
 
-const textShorthands = shorthandSettings({
-  extend: shorthands.settings,
-  defaultProps: {
-    as: "p",
-    color: "var(--component-text-color)",
+const textShorthands = shorthandSettings([
+  shorthands.settings,
+  {
+    defaultProps: {
+      as: "p",
+      color: "var(--component-text-color)",
+    },
   },
-});
+]);
 
 type TextProps = typeof textShorthands.inferProps;
 
