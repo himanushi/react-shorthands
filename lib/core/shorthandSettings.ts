@@ -1,29 +1,12 @@
-import { ComponentProps, ElementType } from "react";
-
-// 型定義
-type Breakpoint = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
-type ResponsiveValue<T> = T | Partial<Record<Breakpoint, T>>;
-type PseudoSelector = `__${string}`;
-type StyleValue = string | number | ResponsiveValue<string | number>;
-type StyleObject = Record<string, StyleValue>;
-type PseudoStyles = Record<PseudoSelector, StyleObject>;
-
-interface ShorthandSettings<T extends ElementType = "div"> {
-  extend?: ShorthandSettings;
-  shorthands?: Record<string, StyleObject>;
-  allowedProps?: (string | RegExp)[];
-  breakpoints?: Record<Breakpoint, number>;
-  colors?: Record<string, string>;
-  pseudoSelectors?: Record<PseudoSelector, string>;
-  defaultProps?: Partial<ComponentProps<T>>;
-  variants?: Record<
-    string,
-    {
-      values: Record<string, StyleObject>;
-      default?: string;
-    }
-  >;
-}
+import { ElementType, ComponentProps } from "react";
+import {
+  ShorthandSettings,
+  ResponsiveValue,
+  Breakpoint,
+  StyleObject,
+  PseudoSelector,
+  PseudoStyles,
+} from "./types";
 
 // メインの実装
 export function shorthandSettings<T extends ElementType = "div">(
@@ -94,10 +77,17 @@ export function shorthandSettings<T extends ElementType = "div">(
   function processShorthand(
     shorthand: StyleObject,
     value: any,
-  ): Record<string, string> {
-    const result: Record<string, string> = {};
+    nestedPseudoSelectors?: boolean,
+  ): Record<string, any> {
+    const result: Record<string, any> = {};
+
     Object.entries(shorthand).forEach(([prop, shorthandValue]) => {
-      if (
+      if (prop.startsWith("__") && nestedPseudoSelectors) {
+        const selector = finalSettings.pseudoSelectors[prop as PseudoSelector];
+        if (selector && typeof shorthandValue === "object") {
+          result[selector] = processShorthand(shorthandValue, null, true);
+        }
+      } else if (
         typeof shorthandValue === "string" &&
         shorthandValue.startsWith("$")
       ) {
@@ -111,6 +101,7 @@ export function shorthandSettings<T extends ElementType = "div">(
         result[prop] = processResponsiveValue(prop, shorthandValue);
       }
     });
+
     return result;
   }
 
@@ -215,54 +206,4 @@ export function shorthandSettings<T extends ElementType = "div">(
   processor.settings = finalSettings;
 
   return processor;
-}
-
-// デフォルトの設定
-export const tailwindcssSettings: ShorthandSettings = {
-  shorthands: {
-    flex: { display: "flex" },
-    grid: { display: "grid" },
-    block: { display: "block" },
-    hidden: { display: "none" },
-    row: { flexDirection: "row" },
-    col: { flexDirection: "column" },
-    wrap: { flexWrap: "wrap" },
-    justifyCenter: { justifyContent: "center" },
-    itemsCenter: { alignItems: "center" },
-    m: { margin: "$1" },
-    p: { padding: "$1" },
-    w: { width: "$1" },
-    h: { height: "$1" },
-    bg: { backgroundColor: "$1" },
-    color: { color: "$1" },
-    border: { borderWidth: "$1" },
-    rounded: { borderRadius: "$1" },
-  },
-  pseudoSelectors: {
-    __hover: ":hover",
-    __focus: ":focus",
-    __active: ":active",
-    __disabled: ":disabled",
-  },
-  allowedProps: [
-    "children",
-    "className",
-    "style",
-    "id",
-    "ref",
-    /^on/,
-    /^aria-/,
-    /^data-/,
-  ],
-};
-
-export { css } from "@emotion/css";
-
-import { injectGlobal } from "@emotion/css";
-
-export function Global({ styles }: { styles: string }): null {
-  if (typeof document !== "undefined") {
-    injectGlobal(styles);
-  }
-  return null;
 }
