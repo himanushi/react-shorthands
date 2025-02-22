@@ -1,6 +1,4 @@
-import { ShorthandSettings } from "../core/types";
-
-export const tailwindcssSettings: ShorthandSettings = {
+export const tailwindcssSettings = {
   shorthands: {
     flex: { display: "flex" },
     grid: { display: "grid" },
